@@ -143,7 +143,7 @@ async def promote(promt):
     try:
         await promt.client(
             EditAdminRequest(promt.chat_id, user.id, new_rights, rank))
-        await promt.edit(f"📌 **This user was successfully promoted by {BOT} !!!** 📌")
+        await promt.edit(f"THIS USER SUCCESSFULLY PROMOTED BY {BOT} ⚡\n MY OWNER IS {MASTER} 🔥")
 
     # If Telethon spit BadRequestError, assume
     # we don't have Promote permission
@@ -200,7 +200,7 @@ async def demote(dmod):
     except BadRequestError:
         await dmod.edit(NO_PERM)
         return
-    await dmod.edit(f"📌 **This user was successfully demoted by {BOT} !!!** 📌")
+    await dmod.edit(f"THIS USER SUCCESSFULLY DEMOTED BY {BOT} ⚡⚡\n MY MASTER IS {MASTER} 🔥")
 
     # Announce to the logging group if we have demoted successfully
     if BOTLOG:
@@ -674,7 +674,7 @@ async def pin(msg):
         await msg.edit(NO_PERM)
         return
 
-    await msg.edit(f"**{MASTER}:** `Pinned Successfully! 📌`")
+    await msg.edit("`Pinned Successfully!`")
 
     user = await get_user_sender_id(msg.sender_id, msg)
 
@@ -842,7 +842,7 @@ CMD_HELP.update({
 \nUsage: Reply someone's message with .ungmute to remove them from the gmuted list.\
 \n\n.delusers\
 \nUsage: Searches for deleted accounts in a group. Use .delusers clean to remove deleted accounts from the group.\
-\n\n.adminlist\
+\n\n.admins\
 \nUsage: Retrieves a list of admins in the chat.\
 \n\n.users or .users <name of member>\
 \nUsage: Retrieves all (or queried) users in the chat.\
