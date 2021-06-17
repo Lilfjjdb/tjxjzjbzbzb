@@ -1,10 +1,18 @@
+"""plugin made for reading nd  exploting message in tg {i}reveal <reply to file>"""
+# originally made by @ItzSjDude All Rights reserved!!
+#  Added Paste System by @danish_00
+# All Credits - @ItzSjDude  #Added Paste System by @danish_00
+# @ItzSjDude
+# @ItzSjDude
+#  Added Paste System by @danish_00
+
 import os, requests, re
 import asyncio
 import time
 from datetime import datetime
 
-from ULTRA.utils import admin_cmd, sudo_cmd , edit_or_reply
-from ULTRA import CMD_HELP, bot
+from userbot.utils import admin_cmd, sudo_cmd , edit_or_reply
+from userbot import CMD_HELP, bot
 
 @borg.on(admin_cmd(pattern=r"open", outgoing=True))
 async def _(event):
@@ -12,18 +20,18 @@ async def _(event):
     a = open(b, "r")
     c = a.read()
     a.close()
-    a = await event.reply("`Rᴇᴀᴅɪɴɢ ғɪʟᴇ ᴡᴇɪᴛ ᴍᴀsᴛᴇʀ...`")
+    a = await event.reply("Reading file...")
     if len(c) >= 4096:            
-            await event.edit("`Oᴜᴛᴘᴜᴛ ᴛᴏ ʟᴀʀɢᴇ ʟᴇᴛ ᴍᴇ ᴘᴀsᴛᴇ ɪᴛ...`")
+            await event.edit("output file too large lemme paste it 😜😜")#hehe
             out = c
             url = "https://del.dog/documents"
             r = requests.post(url, data=out.encode("UTF-8")).json()
             url = f"https://del.dog/{r['key']}"
             await event.edit(
-                f"`Oᴜᴛᴘᴜᴛ ғɪʟᴇ ᴡᴀs ᴛᴏᴏ ʟᴀʀɢᴇ ɴᴏᴛ sᴜᴘᴘᴏʀᴛᴇᴅ ʙʏ ᴛᴇʟᴇɢʀᴀᴍ !!!\nSᴏ ᴘᴀsᴛᴇᴅ ᴛᴏ:` **[Dᴏɢ Bɪɴ]({url})**", link_preview=False)            
+                f" Output file is too large Not supported By Telegram\n**So Pasted to** [Dog Bin]({url}) 😁😁", link_preview=False)            
             await a.delete()
     else:
-        await event.client.send_message(event.chat_id, f"`{c}`")
+        await event.client.send_message(event.chat_id, f"{c}")
         await a.delete()
     os.remove(b)
 
@@ -32,7 +40,7 @@ async def _(event):
 async def get(event):
     name = event.text[5:]
     if name is None:
-        await event.edit("**Rᴇᴘʟʏ ᴛᴏ ᴀ ᴍᴇssᴀɢᴇ ᴀs** `.ttf <filename>.`")
+        await event.edit("reply to text message as .ttf <file name>")
         return
     m = await event.get_reply_message()
     if m.text:
@@ -42,9 +50,21 @@ async def get(event):
         await event.client.send_file(event.chat_id, name, force_document=True)
         os.remove(name)
     else:
-        await event.edit("**Rᴇᴘʟʏ ᴛᴏ ᴀ ᴍᴇssᴀɢᴇ ᴀs** `.doc <file name.extension>`")
+        await event.edit("reply to text message as .doc <file name.extension>")
+
+
+
+#hehe
+
+
+#.stoi nd .itos made by @danish_00
+
+#teamcobra 
+
+#hehe
 
 thumb_image_path = Config.TMP_DOWNLOAD_DIRECTORY + "thumb_image.jpg"
+
 
 @borg.on(admin_cmd(pattern="stoi"))
 @borg.on(sudo_cmd(pattern="stoi", allow_sudo=True))
@@ -55,7 +75,7 @@ async def danish(hehe):
     reply_to_id = hehe.message.id
     if hehe.reply_to_msg_id:
         reply_to_id = hehe.reply_to_msg_id
-    cobra = await edit_or_reply(hehe, "`Cᴏɴᴠᴇʀᴛɪɴɢ.....`")
+    cobra = await edit_or_reply(hehe, "Converting.....")
     
   
     input_str = "dc.jpeg"
@@ -93,9 +113,9 @@ async def danish(hehe):
             os.remove(downloaded_file_name)
             await cobra.delete()
         else:
-            await cobra.edit("`Sᴏᴍᴇᴛʜɪɴɢ ᴡᴇɴᴛ ᴡʀᴏɴɢ`")
+            await cobra.edit("Something went wrong")
     else:
-        await cobra.edit("`Rᴇᴘʟʏ ᴛᴏ ᴀ ɴᴏɴ ᴀɴɪᴍᴀᴛᴇᴅ sᴛɪᴄᴋᴇʀ...`")
+        await cobra.edit("reply to a non animated sticker")
 
   
   
@@ -110,7 +130,7 @@ async def teamcobra(hehe):
     reply_to_id = hehe.message.id
     if hehe.reply_to_msg_id:
         reply_to_id = hehe.reply_to_msg_id
-    cobra = await edit_or_reply(hehe, "`Cᴏɴᴠᴇʀᴛɪɴɢ.....`")
+    cobra = await edit_or_reply(hehe, "Converting.....")
     
   
     input_str = "dc.webp"
@@ -148,9 +168,9 @@ async def teamcobra(hehe):
             os.remove(downloaded_file_name)
             await cobra.delete()
         else:
-            await cobra.edit("`Sᴏᴍᴇᴛʜɪɴɢ ᴡᴇɴᴛ ᴡʀᴏɴɢ`")
+            await cobra.edit("Something went wrong")
     else:
-        await cobra.edit("`Rᴇᴘʟʏ ᴛᴏ ᴀ ɴᴏɴ ᴀɴɪᴍᴀᴛᴇᴅ sᴛɪᴄᴋᴇʀ...`")
+        await cobra.edit("reply to a non animated sticker")
 
   
 CMD_HELP.update(
