@@ -1,72 +1,59 @@
-# LEGENDX22
-# MADBOY482
-
-"""
-Available Commands:
-- Click gift as soon as fast as possible
-Command:- .game ....
-- Second game is a xogame
-Command:- .xogame ....
-"""
-
-from telethon import events
-import asyncio
-from ULTRA import CMD_HELP
-from ULTRA.utils import admin_cmd, sudo_cmd, edit_or_reply
-from var import Var
+# Based Plugins
+# Ported For Lord-Userbot By liualvinas/Alvin
+# If You Kang It Don't Delete / Warning!! Jangan Hapus Ini!!!
+from userbot import CMD_HELP, bot
+from userbot.events import register
 
 
-@borg.on(events.NewMessage(pattern=r"\.(.*)", outgoing=True))
+@register(outgoing=True, pattern=r"^\.xogame(?: |$)(.*)")
 async def _(event):
-    if event.fwd_from:
-        return
-    animation_interval = 1.2
-    animation_ttl = range(0, 14)
-    input_str = event.pattern_match.group(1)
-    if input_str == "game":
-        await event.edit(input_str)
-        animation_chars = [
-       
-            "**Welcome To UltraX Repo Game**",
-            "**Click The Gift As Fast As Possible**",
-            "**Game Starts in 3...**",
-            "**Game Starts in 2..**",
-            "**Game Starts in 1.**",    
-            "🎇🎆🎇🎆🎇🎆🎇\n🎆🎇🎆🎇🎆🎇🎆\n🎇🎆🎇🎆🎇🎆🎇\n🎆🎇🎆🎇🎆🎇🎆\n🎇🎆🎇🎆🎇🎆🎇\n🎆🎇🎆🎇🎆🎇🎆\n🎇🎆🎇🎆🎇🎆🎇",
-            "🎇🎆🎇🎆🎇🎆🎇\n🎆🎇🎆🎇🎆🎇🎆\n🎇🎆🎇🎆🎇🎆🎇\n🎆🎇🎆[🎁](https://github.com/ULTRA-OP/ULTRA-X)🎆🎇🎆\n🎇🎆🎇🎆🎇🎆🎇\n🎆🎇🎆🎇🎆🎇🎆\n🎇🎆🎇🎆🎇🎆🎇",
-            "🎇🎆🎇🎆🎇🎆🎇\n🎆🎇🎆🎇🎆🎇🎆\n🎇🎆🎇🎆🎇🎆🎇\n🎆🎇🎆🎇🎆🎇🎆\n🎇🎆🎇🎆[🎁](https://github.com/ULTRA-OP/ULTRA-X)🎆🎇\n🎆🎇🎆🎇🎆🎇🎆\n🎇🎆🎇🎆🎇🎆🎇",
-            "🎇🎆🎇🎆🎇🎆🎇\n🎆🎇🎆🎇🎆🎇🎆\n🎇[🎁](https://github.com/ULTRA-OP/ULTRA-X)🎇🎆🎇🎆🎇\n🎆🎇🎆🎇🎆🎇\n🎇🎆🎇🎆🎇🎆🎇\n🎆🎇🎆🎇🎆🎇🎆\n🎇🎆🎇🎆🎇🎆🎇",
-            "🎇🎆🎇🎆🎇🎆🎇\n🎆🎇🎆🎇🎆🎇🎆\n🎇🎆🎇🎆🎇🎆🎇\n🎆🎇🎆🎇🎆🎇🎆\n🎇🎆🎇🎆🎇🎆🎇\n🎆🎇🎆🎇🎆[🎁](https://github.com/ULTRA-OP/ULTRA-X)🎆\n🎇🎆🎇🎆🎇🎆🎇",
-            "🎇🎆🎇🎆🎇🎆🎇\n🎆🎇🎆🎇🎆🎇🎆\n🎇🎆🎇🎆🎇🎆🎇\n🎆🎇🎆🎇🎆🎇🎆\n🎇🎆🎇🎆🎇🎆🎇\n🎆🎇🎆🎇🎆🎇🎆\n[🎁](https://github.com/ULTRA-OP/ULTRA-X)🎆🎇🎆🎇🎆🎇",
-            "🎇🎆🎇🎆🎇🎆🎇\n🎆🎇🎆🎇🎆🎇[🎁](https://github.com/ULTRA-OP/ULTRA-X)\n🎇🎆🎇🎆🎇🎆🎇\n🎆🎇🎆🎇🎆🎇🎆\n🎇🎆🎇🎆🎇🎆🎇\n🎆🎇🎆🎇🎆🎇🎆\n🎇🎆🎇🎆🎇🎆",
-            "🎇🎆🎇🎆🎇🎆🎇\n🎆🎇🎆🎇🎆🎇🎆\n🎇🎆🎇🎆🎇🎆🎇\n🎆🎇🎆🎇🎆🎇🎆\n🎇🎆🎇🎆🎇🎆🎇\n🎆🎇🎆🎇🎆🎇\n🎇🎆🎇🎆🎇🎆🎇",
-            "**Game Over !.!.!.!**"
- ]
-        for i in animation_ttl:
-            await asyncio.sleep(animation_interval)
-            await event.edit(animation_chars[i % 14])
-
-
-from ULTRA.utils import admin_cmd, sudo_cmd, edit_or_reply
-from var import Var
-
-@borg.on(admin_cmd(pattern="xogame$"))
-async def gamez(event):
     if event.fwd_from:
         return
     botusername = "@xobot"
     noob = "play"
     if event.reply_to_msg_id:
-        reply_to_id = await event.get_reply_message()
-    tap = await bot.inline_query(botusername, noob) 
+        await event.get_reply_message()
+    tap = await bot.inline_query(botusername, noob)
     await tap[0].click(event.chat_id)
     await event.delete()
-    
-CMD_HELP.update
-(
-  {
-    "legend-games": "**Plugin : **`games`\
-    \n\n**Syntax : **`.xogame and .game`\
-    \n**Function : **games h play krke Dekho"
-  }
-)
+
+# Alvin Gans
+
+
+@register(outgoing=True, pattern=r"^\.wp(?: |$)(.*)")
+async def _(event):
+    if event.fwd_from:
+        return
+    wwwspr = event.pattern_match.group(1)
+    botusername = "@whisperBot"
+    if event.reply_to_msg_id:
+        await event.get_reply_message()
+    tap = await bot.inline_query(botusername, wwwspr)
+    await tap[0].click(event.chat_id)
+    await event.delete()
+
+# Alvin Gans
+
+
+@register(outgoing=True, pattern=r"^\.mod(?: |$)(.*)")
+async def _(event):
+    if event.fwd_from:
+        return
+    modr = event.pattern_match.group(1)
+    botusername = "@PremiumAppBot"
+    if event.reply_to_msg_id:
+        await event.get_reply_message()
+    tap = await bot.inline_query(botusername, modr)
+    await tap[0].click(event.chat_id)
+    await event.delete()
+
+# Ported For Lord-Userbot By liualvinas/Alvin
+
+CMD_HELP.update({
+    "games": "\
+⚡𝘾𝙈𝘿⚡: `.xogame`\
+\n↳ : Mainkan game XO bersama temanmu.\
+\n\n⚡𝘾𝙈𝘿⚡: `.mod <nama app>`\
+\n↳ : Dapatkan applikasi mod\
+\n\n⚡𝘾𝙈𝘿⚡: `.wp <teks> <username/ID>`\
+\n↳ : Berikan pesan rahasia"})
