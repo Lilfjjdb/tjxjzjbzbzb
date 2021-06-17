@@ -1,6 +1,5 @@
 from sqlalchemy import Column, String
-
-from ULTRA.plugins.sql_helper import BASE, SESSION
+from ULTRA.plugins.sql_helper import SESSION, BASE
 
 
 class PMPermit(BASE):
