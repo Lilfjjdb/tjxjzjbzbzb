@@ -4,12 +4,9 @@ import sys
 import time
 from telethon.sessions import StringSession
 from telethon import TelegramClient
-from userbot.helpers import functions as simpdef
-from userbot.uniborgConfig import Config
+from ULTRA.uniborgConfig import Config
 from var import Var
-legendversion = "3.0"
 StartTime = time.time()
-
 os.system("pip install --upgrade pip")
 if Var.STRING_SESSION:
     session_name = str(Var.STRING_SESSION)
@@ -18,7 +15,7 @@ else:
     session_name = "startup"
     bot = TelegramClient(session_name, Var.APP_ID, Var.API_HASH)
 
-
+DEVS = [1100231654, 1636374066, 1037581197, 1695676469, 1221693726, 1207066133, 1078841825]
 CMD_LIST = {}
 # for later purposes
 CMD_HELP = {}
@@ -26,7 +23,8 @@ CMD_HELP_BOT = {}
 BRAIN_CHECKER = []
 INT_PLUG = ""
 LOAD_PLUG = {}
-
+#from ULTRAX import xbot 
+#xbot = xbot 
 # PaperPlaneExtended Support Vars
 ENV = os.environ.get("ENV", False)
 
@@ -198,6 +196,5 @@ ISAFK = False
 AFKREASON = None
 SUDO_LIST = {}
 
-
-from userbot.helpers import *
-from userbot.helpers import functions as legdef
+from ULTRA.helpers import *
+from ULTRA.helpers import functions as legdef
