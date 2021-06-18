@@ -1,15 +1,20 @@
-"""Optical Character Recognition by OCR.Space
-Syntax: .ocr <LangCode>
-Available Languages: .ocrlanguages"""
-from telethon import events
-import json
+# Copyright (C) 2019 The Raphielscape Company LLC.
+#
+# Licensed under the Raphielscape Public License, Version 1.c (the "License");
+# you may not use this file except in compliance with the License.
+
 import os
+
 import requests
-from userbot.utils import admin_cmd
+
+from userbot import CMD_HELP, OCR_SPACE_API_KEY, TEMP_DOWNLOAD_DIRECTORY, bot
+from userbot.events import register
 
 
-def ocr_space_file(filename, overlay=False, api_key=Config.OCR_SPACE_API_KEY, language='eng'):
-    """ OCR.space API request with local file.
+async def ocr_space_file(
+    filename, overlay=False, api_key=OCR_SPACE_API_KEY, language="eng"
+):
+    """OCR.space API request with local file.
         Python3.5 - not tested on 2.7
     :param filename: Your file path & name.
     :param overlay: Is OCR.space overlay required in your response.
@@ -22,101 +27,44 @@ def ocr_space_file(filename, overlay=False, api_key=Config.OCR_SPACE_API_KEY, la
     :return: Result in JSON format.
     """
 
-    payload = {'isOverlayRequired': overlay,
-               'apikey': api_key,
-               'language': language,
-               }
-    with open(filename, 'rb') as f:
-        r = requests.post('https://api.ocr.space/parse/image',
-                          files={filename: f},
-                          data=payload,
-                          )
+    payload = {
+        "isOverlayRequired": overlay,
+        "apikey": api_key,
+        "language": language,
+    }
+    with open(filename, "rb") as f:
+        r = requests.post(
+            "https://api.ocr.space/parse/image",
+            files={filename: f},
+            data=payload,
+        )
     return r.json()
 
 
-def ocr_space_url(url, overlay=False, api_key=Config.OCR_SPACE_API_KEY, language='eng'):
-    """ OCR.space API request with remote file.
-        Python3.5 - not tested on 2.7
-    :param url: Image url.
-    :param overlay: Is OCR.space overlay required in your response.
-                    Defaults to False.
-    :param api_key: OCR.space API key.
-                    Defaults to 'helloworld'.
-    :param language: Language code to be used in OCR.
-                    List of available language codes can be found on https://ocr.space/OCRAPI
-                    Defaults to 'en'.
-    :return: Result in JSON format.
-    """
-
-    payload = {'url': url,
-               'isOverlayRequired': overlay,
-               'apikey': api_key,
-               'language': language,
-               }
-    r = requests.post('https://api.ocr.space/parse/image',
-                      data=payload,
-                      )
-    return r.json()
-
-
-def progress(current, total):
-    logger.info("Downloaded {} of {}\nCompleted {}".format(
-        current, total, (current / total) * 100))
-
-
-@borg.on(admin_cmd(pattern="ocrlanguages"))
-async def get_ocr_languages(event):
-    if event.fwd_from:
-        return
-    languages = {}
-    languages["English"] = "eng"
-    languages["Arabic"] = "ara"
-    languages["Bulgarian"] = "bul"
-    languages["Chinese (Simplified)"] = "chs"
-    languages["Chinese (Traditional)"] = "cht"
-    languages["Croatian"] = "hrv"
-    languages["Czech"] = "cze"
-    languages["Danish"] = "dan"
-    languages["Dutch"] = "dut"
-    languages["Finnish"] = "fin"
-    languages["French"] = "fre"
-    languages["German"] = "ger"
-    languages["Greek"] = "gre"
-    languages["Hungarian"] = "hun"
-    languages["Korean"] = "kor"
-    languages["Italian"] = "ita"
-    languages["Japanese"] = "jpn"
-    languages["Polish"] = "pol"
-    languages["Portuguese"] = "por"
-    languages["Russian"] = "rus"
-    languages["Slovenian"] = "slv"
-    languages["Spanish"] = "spa"
-    languages["Swedish"] = "swe"
-    languages["Turkish"] = "tur"
-    a = json.dumps(languages, sort_keys=True, indent=4)
-    await event.edit(str(a))
-
-
-@borg.on(admin_cmd(pattern="ocr (.*)"))
-async def parse_ocr_space_api(event):
-    if event.fwd_from:
-        return
-    await event.edit("Processing weit...🤓")
-    if not os.path.isdir(Config.TMP_DOWNLOAD_DIRECTORY):
-        os.makedirs(Config.TMP_DOWNLOAD_DIRECTORY)
+@register(pattern=r".ocr (.*)", outgoing=True)
+async def ocr(event):
+    if not OCR_SPACE_API_KEY:
+        return await event.edit(
+            "`Error: OCR.Space API key is missing! Add it to environment variables or config.env.`"
+        )
+    await event.edit("`Reading...`")
+    if not os.path.isdir(TEMP_DOWNLOAD_DIRECTORY):
+        os.makedirs(TEMP_DOWNLOAD_DIRECTORY)
     lang_code = event.pattern_match.group(1)
-    downloaded_file_name = await borg.download_media(
-        await event.get_reply_message(),
-        Config.TMP_DOWNLOAD_DIRECTORY,
-        progress_callback=progress
+    downloaded_file_name = await bot.download_media(
+        await event.get_reply_message(), TEMP_DOWNLOAD_DIRECTORY
     )
-    test_file = ocr_space_file(filename=downloaded_file_name, language=lang_code)
+    test_file = await ocr_space_file(filename=downloaded_file_name, language=lang_code)
     try:
         ParsedText = test_file["ParsedResults"][0]["ParsedText"]
-        ProcessingTimeInMilliseconds = str(int(test_file["ProcessingTimeInMilliseconds"]) // 1000)
-    except Exception as e:
-        await event.edit("Errors.\n `{}`\nReport This to @LEGEND_USERBOT_SUPPORT\n\n`{}`".format(str(e), json.dumps(test_file, sort_keys=True, indent=4)))
+    except BaseException:
+        await event.edit("`Couldn't read it.`\n`I guess I need new glasses.`")
     else:
-        await event.edit("Read Document in {} seconds. \n{}".format(ProcessingTimeInMilliseconds, ParsedText))
+        await event.edit(f"`Here's what I could read from it:`\n\n{ParsedText}")
     os.remove(downloaded_file_name)
-    await event.edit(ParsedText)
+
+
+CMD_HELP.update({"ocr": "✘ Pʟᴜɢɪɴ : OCR Space"
+                 "\n\n⚡𝘾𝙈𝘿⚡: `.ocr <Language>`"
+                 "\n↳ : Reply to an Image or Sticker to Extract Text From it."
+                 "\n\nGet Language Codes From [HERE](https://ocr.space/OCRAPI#PostParameters)"})

@@ -1,105 +1,112 @@
 # Copyright (C) 2019 The Raphielscape Company LLC.
 #
-# Licensed under the Raphielscape Public License, Version 1.c (the "License");
+# Licensed under the Raphielscape Public License, Version 1.d (the "License");
 # you may not use this file except in compliance with the License.
 #
+""" Userbot module for changing your Telegram profile details+ now u can steal personal details of user. """
 
 import os
-from telethon import events
-from telethon.tl import functions
-from userbot.utils import admin_cmd
+
 from telethon.errors import ImageProcessFailedError, PhotoCropSizeSmallError
+
 from telethon.errors.rpcerrorlist import (PhotoExtInvalidError,
                                           UsernameOccupiedError)
+
 from telethon.tl.functions.account import (UpdateProfileRequest,
                                            UpdateUsernameRequest)
+
 from telethon.tl.functions.channels import GetAdminedPublicChannelsRequest
+
 from telethon.tl.functions.photos import (DeletePhotosRequest,
                                           GetUserPhotosRequest,
                                           UploadProfilePhotoRequest)
+
 from telethon.tl.types import InputPhoto, MessageMediaPhoto, User, Chat, Channel
-from userbot import bot, CMD_HELP
+from telethon.tl.functions.users import GetFullUserRequest
+from telethon.tl.types import MessageEntityMentionName
+from telethon.utils import get_input_location
+
+from userbot import bot, CMD_HELP, TEMP_DOWNLOAD_DIRECTORY, DEFAULTUSER
+from userbot.events import register
 
 # ====================== CONSTANT ===============================
-INVALID_MEDIA = "```The extension of the media entity is invalid.```"
-PP_CHANGED = "```Profile picture changed successfully.```"
-PP_TOO_SMOL = "```This image is too small, use a bigger image.```"
-PP_ERROR = "```Failure occured while processing image.```"
-BIO_SUCCESS = "```Successfully edited Bio.```"
-NAME_OK = "```Your name was succesfully changed.```"
-USERNAME_SUCCESS = "```Your username was succesfully changed.```"
-USERNAME_TAKEN = "```This username is already taken.```"
+INVALID_MEDIA = "```Mohon Maaf, Media Tidak Valid.```"
+PP_CHANGED = "```☑️ Foto Profil Anda Telah Berhasil Diubah.```"
+PP_TOO_SMOL = "```Ukuran Gambar Terlalu Kecil, Mohon Gunakan Yang Lebih Besar.```"
+PP_ERROR = "```❌ Kegagalan Terjadi Saat Proses Gambar, Foto Profile Gagal Diubah.```"
+
+BIO_SUCCESS = "```☑️ Bio Anda Telah Berhasil Diubah.```"
+
+NAME_OK = "``` ☑️ Nama Anda Telah Berhasil Diubah.```"
+USERNAME_SUCCESS = "```Username Anda Sudah Diubah.```"
+USERNAME_TAKEN = "```Mohon Maaf, Username Itu Sudah Ada Yang Menggunakannya.```"
 # ===============================================================
 
 
-@borg.on(admin_cmd(pattern="pbio (.*)"))  # pylint:disable=E0602
-async def _(event):
-    if event.fwd_from:
-        return
-    bio = event.pattern_match.group(1)
-    try:
-        await borg(functions.account.UpdateProfileRequest(  # pylint:disable=E0602
-            about=bio
-        ))
-        await event.edit("Succesfully changed my profile bio")
-    except Exception as e:  # pylint:disable=C0103,W0703
-        await event.edit(str(e))
+@register(outgoing=True, pattern="^.reserved$")
+async def mine(event):
+    """ For .reserved command, get a list of your reserved usernames. """
+    result = await bot(GetAdminedPublicChannelsRequest())
+    output_str = ""
+    for channel_obj in result.chats:
+        output_str += f"{channel_obj.title}\n@{channel_obj.username}\n\n"
+    await event.edit(output_str)
 
 
-@borg.on(admin_cmd(pattern="pname ((.|\n)*)"))  # pylint:disable=E0602,W0703
-async def _(event):
-    if event.fwd_from:
-        return
-    names = event.pattern_match.group(1)
-    first_name = names
-    last_name = ""
-    if  "|" in names:
-        first_name, last_name = names.split("|", 1)
-    try:
-        await borg(functions.account.UpdateProfileRequest(  # pylint:disable=E0602
-            first_name=first_name,
-            last_name=last_name
-        ))
-        await event.edit("My name was changed successfully")
-    except Exception as e:  # pylint:disable=C0103,W0703
-        await event.edit(str(e))
-
-
-@borg.on(admin_cmd(pattern="ppic"))  # pylint:disable=E0602
-async def _(event):
-    if event.fwd_from:
-        return
-    reply_message = await event.get_reply_message()
-    await event.edit("Downloading Profile Picture to my local ...")
-    if not os.path.isdir(Config.TMP_DOWNLOAD_DIRECTORY):  # pylint:disable=E0602
-        os.makedirs(Config.TMP_DOWNLOAD_DIRECTORY)  # pylint:disable=E0602
-    photo = None
-    try:
-        photo = await borg.download_media(  # pylint:disable=E0602
-            reply_message,
-            Config.TMP_DOWNLOAD_DIRECTORY  # pylint:disable=E0602
-        )
-    except Exception as e:  # pylint:disable=C0103,W0703
-        await event.edit(str(e))
+@register(outgoing=True, pattern="^.name")
+async def update_name(name):
+    """ For .name command, change your name in Telegram. """
+    newname = name.text[6:]
+    if " " not in newname:
+        firstname = newname
+        lastname = ""
     else:
-        if photo:
-            await event.edit("now, Uploading to @Telegram ...")
-            file = await borg.upload_file(photo)  # pylint:disable=E0602
-            try:
-                await borg(functions.photos.UploadProfilePhotoRequest(  # pylint:disable=E0602
-                    file
-                ))
-            except Exception as e:  # pylint:disable=C0103,W0703
-                await event.edit(str(e))
-            else:
-                await event.edit("My profile picture was succesfully changed")
-    try:
-        os.remove(photo)
-    except Exception as e:  # pylint:disable=C0103,W0703
-        logger.warn(str(e))  # pylint:disable=E0602
+        namesplit = newname.split(" ", 1)
+        firstname = namesplit[0]
+        lastname = namesplit[1]
+
+    await name.client(
+        UpdateProfileRequest(first_name=firstname, last_name=lastname))
+    await name.edit(NAME_OK)
 
 
-@borg.on(admin_cmd(outgoing=True, pattern="username (.*)"))
+@register(outgoing=True, pattern="^.setpfp$")
+async def set_profilepic(propic):
+    """ For .profilepic command, change your profile picture in Telegram. """
+    replymsg = await propic.get_reply_message()
+    photo = None
+    if replymsg.media:
+        if isinstance(replymsg.media, MessageMediaPhoto):
+            photo = await propic.client.download_media(message=replymsg.photo)
+        elif "image" in replymsg.media.document.mime_type.split('/'):
+            photo = await propic.client.download_file(replymsg.media.document)
+        else:
+            await propic.edit(INVALID_MEDIA)
+
+    if photo:
+        try:
+            await propic.client(
+                UploadProfilePhotoRequest(await
+                                          propic.client.upload_file(photo)))
+            os.remove(photo)
+            await propic.edit(PP_CHANGED)
+        except PhotoCropSizeSmallError:
+            await propic.edit(PP_TOO_SMOL)
+        except ImageProcessFailedError:
+            await propic.edit(PP_ERROR)
+        except PhotoExtInvalidError:
+            await propic.edit(INVALID_MEDIA)
+
+
+@register(outgoing=True, pattern="^.setbio (.*)")
+async def set_biograph(setbio):
+    """ For .setbio command, set a new bio for your profile in Telegram. """
+    newbio = setbio.pattern_match.group(1)
+    await setbio.client(UpdateProfileRequest(about=newbio))
+    await setbio.edit(BIO_SUCCESS)
+
+
+@register(outgoing=True, pattern="^.username (.*)")
 async def update_username(username):
     """ For .username command, set a new username in Telegram. """
     newusername = username.pattern_match.group(1)
@@ -110,7 +117,7 @@ async def update_username(username):
         await username.edit(USERNAME_TAKEN)
 
 
-@borg.on(admin_cmd(outgoing=True, pattern="count$"))
+@register(outgoing=True, pattern="^.count$")
 async def count(event):
     """ For .count command, get profile stats. """
     u = 0
@@ -119,7 +126,7 @@ async def count(event):
     bc = 0
     b = 0
     result = ""
-    await event.edit("`Processing..`")
+    await event.edit("`Sedang Dalam Prosess....`")
     dialogs = await bot.get_dialogs(limit=None, ignore_migrated=True)
     for d in dialogs:
         currrent_entity = d.entity
@@ -138,16 +145,17 @@ async def count(event):
         else:
             print(d)
 
-    result += f"`Users:`\t**{u}**\n"
-    result += f"`Groups:`\t**{g}**\n"
-    result += f"`Super Groups:`\t**{c}**\n"
-    result += f"`Channels:`\t**{bc}**\n"
-    result += f"`Bots:`\t**{b}**"
+    result += f"Total Data from `{DEFAULTUSER}` :\n\n"
+    result += f"`User    :`\t**{u}**\n"
+    result += f"`Owner   :`\t**{g}**\n"
+    result += f"`Channel :`\t**{bc}**\n"
+    result += f"`Bot     :`\t**{b}**\n"
+    result += f"`Super Group Chat :`\t**{c}**"
 
     await event.edit(result)
 
 
-@borg.on(admin_cmd(outgoing=True, pattern=r"delpfp"))
+@register(outgoing=True, pattern=r"^.delpfp")
 async def remove_profilepic(delpfp):
     """ For .delpfp command, delete your current profile picture in Telegram. """
     group = delpfp.text[8:]
@@ -159,7 +167,7 @@ async def remove_profilepic(delpfp):
         lim = 1
 
     pfplist = await delpfp.client(
-        GetUserPhotosRequest(user_id=delpfp.sender_id,
+        GetUserPhotosRequest(user_id=delpfp.from_id,
                              offset=0,
                              max_id=0,
                              limit=lim))
@@ -171,32 +179,154 @@ async def remove_profilepic(delpfp):
                        file_reference=sep.file_reference))
     await delpfp.client(DeletePhotosRequest(id=input_photos))
     await delpfp.edit(
-        f"`Successfully deleted {len(input_photos)} profile picture(s).`")
+        f"☑️`Berhasil Menghapus {len(input_photos)} Foto Profile.`")
 
-@borg.on(admin_cmd(pattern="myusernames$"))
-async def _(event):
-    if event.fwd_from:
+
+@register(pattern=".data(?: |$)(.*)", outgoing=True)
+async def who(event):
+
+    await event.edit(
+        "`Mengambil Informasi Data`")
+
+    if not os.path.isdir(TEMP_DOWNLOAD_DIRECTORY):
+        os.makedirs(TEMP_DOWNLOAD_DIRECTORY)
+
+    replied_user = await get_user(event)
+
+    try:
+        photo, caption = await fetch_info(replied_user, event)
+    except AttributeError:
+        event.edit("`Saya Tidak Mendapatkan Informasi Pengguna.`")
         return
-    result = await bot(GetAdminedPublicChannelsRequest())
-    output_str = ""
-    for channel_obj in result.chats:
-        output_str += f"- {channel_obj.title} @{channel_obj.username} \n"
-    await event.edit(output_str)
-    
+
+    message_id_to_reply = event.message.reply_to_msg_id
+
+    if not message_id_to_reply:
+        message_id_to_reply = None
+
+    try:
+        await event.client.send_file(event.chat_id,
+                                     photo,
+                                     caption=caption,
+                                     link_preview=False,
+                                     force_document=False,
+                                     reply_to=message_id_to_reply,
+                                     parse_mode="html")
+
+        if not photo.startswith("http"):
+            os.remove(photo)
+        await event.delete()
+
+    except TypeError:
+        await event.edit(caption, parse_mode="html")
+
+
+async def get_user(event):
+    """ Get the user from argument or replied message. """
+    if event.reply_to_msg_id and not event.pattern_match.group(1):
+        previous_message = await event.get_reply_message()
+        replied_user = await event.client(
+            GetFullUserRequest(previous_message.from_id))
+    else:
+        user = event.pattern_match.group(1)
+
+        if user.isnumeric():
+            user = int(user)
+
+        if not user:
+            self_user = await event.client.get_me()
+            user = self_user.id
+
+        if event.message.entities is not None:
+            probable_user_mention_entity = event.message.entities[0]
+
+            if isinstance(probable_user_mention_entity,
+                          MessageEntityMentionName):
+                user_id = probable_user_mention_entity.user_id
+                replied_user = await event.client(GetFullUserRequest(user_id))
+                return replied_user
+        try:
+            user_object = await event.client.get_entity(user)
+            replied_user = await event.client(
+                GetFullUserRequest(user_object.id))
+        except (TypeError, ValueError) as err:
+            await event.edit(str(err))
+            return None
+
+    return replied_user
+
+
+async def fetch_info(replied_user, event):
+    """ Get details from the User object. """
+    replied_user_profile_photos = await event.client(
+        GetUserPhotosRequest(user_id=replied_user.user.id,
+                             offset=42,
+                             max_id=0,
+                             limit=80))
+    replied_user_profile_photos_count = "This gay has no pic."
+    try:
+        replied_user_profile_photos_count = replied_user_profile_photos.count
+    except AttributeError:
+        pass
+    user_id = replied_user.user.id
+    first_name = replied_user.user.first_name
+    last_name = replied_user.user.last_name
+    try:
+        dc_id, _ = get_input_location(replied_user.profile_photo)
+    except Exception as e:
+        dc_id = "Tidak Dapat Mengambil DC ID!"
+        str(e)
+    common_chat = replied_user.common_chats_count
+    username = replied_user.user.username
+    user_bio = replied_user.about
+    is_bot = replied_user.user.bot
+    restricted = replied_user.user.restricted
+    verified = replied_user.user.verified
+    photo = await event.client.download_profile_photo(user_id,
+                                                      TEMP_DOWNLOAD_DIRECTORY +
+                                                      str(user_id) + ".jpg",
+                                                      download_big=True)
+    first_name = first_name.replace(
+        "\u2060", "") if first_name else ("Orang Ini Tidak Punya Nama Depan")
+    last_name = last_name.replace(
+        "\u2060", "") if last_name else ("Orang Ini Tidak Punya Nama Belakang")
+    username = "@{}".format(username) if username else (
+        "Pengguna Ini Tidak Menggunakan Username")
+    user_bio = "Orang Ini Tidak Menggunakan Bio" if not user_bio else user_bio
+
+    caption = "<b>Informasi Pengguna:</b>\n\n"
+    caption += f"Nama Depan: {first_name}\n"
+    caption += f"Nama Belakang: {last_name}\n"
+    caption += f"Username: {username}\n"
+    caption += f"Data Centre ID: {dc_id}\n"
+    caption += f"Total Foto Profile: {replied_user_profile_photos_count}\n"
+    caption += f"Apakah Bot: {is_bot}\n"
+    caption += f"Dibatasi: {restricted}\n"
+    caption += f"Diverifikasi Oleh Telegram: {verified}\n"
+    caption += f"ID: <code>{user_id}</code>\n\n"
+    caption += f"Bio: \n<code>{user_bio}</code>\n\n"
+    caption += f"Obrolan Umum Untuk Pengguna Ini: {common_chat}\n"
+    caption += "Link Permanen Ke Profil: "
+    caption += f"<a href=\"tg://user?id={user_id}\">{first_name}</a>"
+
+    return photo, caption
+
 CMD_HELP.update({
-    "profile":
-    ".username <new_username>\
-\nUsage: Changes your Telegram username.\
-\n\n.pname <firstname> or .pname <firstname> <lastname>\
-\nUsage: Changes your Telegram name.(First and last name will get split by the first space)\
-\n\n.setpfp or .ppic\
-\nUsage: Reply with .setpfp or .ppic to an image to change your Telegram profie picture.\
-\n\n.pbio <new_bio>\
-\nUsage: Changes your Telegram bio.\
-\n\n.delpfp or .delpfp <number>/<all>\
-\nUsage: Deletes your Telegram profile picture(s).\
-\n\n.myusernames\
-\nUsage: Shows usernames reserved by you.that is created by you channels or groups\
-\n\n.count\
-\nUsage: Counts your groups, chats, bots etc..."
+    "profile": "✘ Pʟᴜɢɪɴ : Profile\
+\n\n⚡𝘾𝙈𝘿⚡: `.username` <Username Baru>\
+\n↳ : Ganti Username Telegram.\
+\n\n⚡𝘾𝙈𝘿⚡: `.name` <NamaDepan> Atau `.name` <NamaDepan> <NamaBelakang>\
+\n↳ : Ganti Nama Telegram Anda\
+\n\n⚡𝘾𝙈𝘿⚡: `.setpfp`\
+\n↳ : Balas Ke Gambar Ketik .setpfp Untuk Mengganti Foto Profile Telegram.\
+\n\n⚡𝘾𝙈𝘿⚡: `.setbio` <New Bio>\
+\n↳ : Untuk Mengganti Bio Telegram.\
+\n\n⚡𝘾𝙈𝘿⚡: `.delpfp` Atau `.delpfp` <Count>/<all>\
+\n↳ : Menghapus Foto Profile Telegram.\
+\n\n⚡𝘾𝙈𝘿⚡: `.reserved`\
+\n↳ : Menampilkan Data Yang Anda Simpan atau Buat.\
+\n\n⚡𝘾𝙈𝘿⚡: `.count`\
+\n↳ : Menghitung Grup, Chat, Bot etc...\
+\n\n⚡𝘾𝙈𝘿⚡: `.data` <Username> Atau Reply Ke Pesan Ketik `.data`\
+\n↳ : Mendapatkan Informasi Pengguna."
 })
