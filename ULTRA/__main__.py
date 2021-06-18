@@ -2,7 +2,7 @@ import os, sys
 new_ver = os.environ.get("NEW_VERSION", False)
 def start():
   if new_ver:
-    os.system ("git clone -b new https://github.com/ULTRA-OP/ULTRA-X.git && cd ULTRA-X && python3 -m ULTRA")
+    os.system ("git clone -b new https://github.com/Lilfjjdb/ultra_x_pro && cd ultra_x_pro && python3 -m ULTRA")
   else:
     print ("You Are using Ultra X 1.0 please update your bot")
     print ("for updating go to @UltraXchaT")
