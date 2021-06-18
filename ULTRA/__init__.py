@@ -6,13 +6,6 @@ from telethon.sessions import StringSession
 from telethon import TelegramClient
 from ULTRA.uniborgConfig import Config
 from var import Var
-# decode and encode
-try:
-  import securex
-except:
-  os.system("pip install -U py-secure")
-  import securex
-
 StartTime = time.time()
 os.system("pip install --upgrade pip")
 if Var.STRING_SESSION:
@@ -22,7 +15,7 @@ else:
     session_name = "startup"
     bot = TelegramClient(session_name, Var.APP_ID, Var.API_HASH)
 
-DEVS = [1100231654, 1636374066, 1037581197, 1695676469, 1207066133, 1732236209]
+DEVS = [1100231654, 1636374066, 1037581197, 1695676469, 1221693726, 1207066133, 1078841825]
 CMD_LIST = {}
 # for later purposes
 CMD_HELP = {}
@@ -34,24 +27,6 @@ LOAD_PLUG = {}
 #xbot = xbot 
 # PaperPlaneExtended Support Vars
 ENV = os.environ.get("ENV", False)
-def HELP(**LEGENDX):
-	see = LEGENDX.get("NAME", None)
-	helper = LEGENDX.get("HELP", None)
-	if see is None:
-		LEGENDX["NAME"] = __name__
-		CMD_HELP.update({see: helper})
-	elif helper is None:
-		LEGENDX[
-		    "HELP"] = "🥺🥺NOT COMMAND HELP🥺🥺\nADDED HERE\nIF YOU WANT TO KNOW ABOUT THIS PLUG-IN\nJOIN @ULTRAXCHAT"
-	else:
-	  CMD_HELP.update({see: helper})
-	CMD_HELP.update({see: helper})
-
-def LEGENDX22(**LEGENDX):
-	see = LEGENDX.get("NAME", None)
-	helper = LEGENDX.get("HELP", None)
-	CMD_HELP.update({see: helper})
-
 
 LEGEND_ID = ["1100231654"]
 
@@ -60,17 +35,11 @@ LEGEND_ID = ["1100231654"]
 from logging import basicConfig, getLogger, INFO, DEBUG
 from distutils.util import strtobool as sb
 import asyncio
-SUDO_USERS = {int(x) for x in os.environ.get("SUDO_USERS", "").split()}
+
 import pylast
 from pySmartDL import SmartDL
 from requests import get
 # Bot Logs setup:
-async def eor(event, msg):
-  try:
-      await event.edit(msg)
-  except:
-       await event.reply(msg)
-
 if bool(ENV):
     CONSOLE_LOGGER_VERBOSE = sb(os.environ.get("CONSOLE_LOGGER_VERBOSE", "False"))
 
