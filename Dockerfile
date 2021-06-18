@@ -1,14 +1,16 @@
-FROM python:3.9
+# Docker Tag Images, Using Python Slim Buster.
+FROM kenzo404/lynxuser:Buster
+# ==========================================
+#              Lynx - Userbot
+# ==========================================
+RUN git clone -b Lynx-Userbot https://github.com/KENZO-404/Lynx-Userbot /home/Lynx-Userbot \
+    && chmod 777 /home/Lynx-Userbot \
+    && mkdir /home/Lynx-Userbot/bin/
 
-RUN pip install --upgrade pip \
-	&& mkdir /app
+# Copies config.env (if exists)
+COPY ./sample_config.env ./config.env* /home/Lynx-Userbot/
 
-RUN pip freeze > requirements.txt
+WORKDIR /home/Lynx-Userbot/
 
-ADD . /app
-
-WORKDIR /app
-
-RUN pip install -r requirements.txt
-
-CMD python /app/bot.py
+# Finishim
+CMD ["python3","-m","userbot"]
