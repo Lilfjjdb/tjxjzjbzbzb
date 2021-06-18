@@ -1,19 +1,11 @@
-
-
-"""
-Syntax : .gps <location name>
-"""
-# Made by @mrconfused
-# help from @sunda005 and @SpEcHIDe
-# don't edit credits 
-
+#credits: mrconfused
 from geopy.geocoders import Nominatim
-from userbot.utils import admin_cmd
 from telethon.tl import types
+from userbot.events import register
+from userbot import CMD_HELP
 
 
-
-@borg.on(admin_cmd(pattern="gps ?(.*)"))
+@register(outgoing=True, pattern="^.gps(?: |$)(.*)")
 async def gps(event):
     if event.fwd_from:
         return
@@ -23,11 +15,11 @@ async def gps(event):
     input_str = event.pattern_match.group(1)
 
     if not input_str:
-        return await event.edit("What should i find? Give me location.🤨")
+        return await event.edit("`Lord Mohon Berikan Tempat Yang Dicari`")
 
-    await event.edit("Finding😁")
+    await event.edit("`Menemukan Lokasi Ini Di Server Map....`")
 
-    geolocator = Nominatim(user_agent="catuserbot")
+    geolocator = Nominatim(user_agent="Lord")
     geoloc = geolocator.geocode(input_str)
 
     if geoloc:
@@ -43,4 +35,10 @@ async def gps(event):
         )
         await event.delete()
     else:
-        await event.edit("I coudn't find it😫")
+        await event.edit("`Lord Saya Tidak Dapat Menemukannya`")
+
+CMD_HELP.update({
+    "gps":
+    ">.`gps`"
+    "\nUsage: Untuk Mendapatkan Lokasi Map"
+})

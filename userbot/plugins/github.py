@@ -1,42 +1,51 @@
-"""Get information about an user on GitHub
-Syntax: .github USERNAME"""
-from telethon import events
-import requests
-from userbot.utils import admin_cmd
+import aiohttp
+from userbot.events import register
+from userbot import CMD_HELP
 
 
-@borg.on(admin_cmd("github (.*)"))
-async def _(event):
-    if event.fwd_from:
-        return
-    input_str = event.pattern_match.group(1)
-    url = "https://api.github.com/users/{}".format(input_str)
-    r = requests.get(url)
-    if r.status_code != 404:
-        b = r.json()
-        avatar_url = b["avatar_url"]
-        html_url = b["html_url"]
-        gh_type = b["type"]
-        name = b["name"]
-        company = b["company"]
-        blog = b["blog"]
-        location = b["location"]
-        bio = b["bio"]
-        created_at = b["created_at"]
-        await borg.send_file(
-            event.chat_id,
-            caption="""Name: [{}]({})
-Type: {}
-Company: {}
-Blog: {}
-Location: {}
-Bio: {}
-Profile Created: {}""".format(name, html_url, gh_type, company, blog, location, bio, created_at),
-            file=avatar_url,
-            force_document=False,
-            allow_cache=False,
-            reply_to=event
-        )
-        await event.delete()
-    else:
-        await event.edit("`{}`: {}".format(input_str, r.text))
+@register(pattern=r".git (.*)", outgoing=True)
+async def github(event):
+    URL = f"https://api.github.com/users/{event.pattern_match.group(1)}"
+    await event.get_chat()
+    async with aiohttp.ClientSession() as session:
+        async with session.get(URL) as request:
+            if request.status == 404:
+                return await event.reply("`" + event.pattern_match.group(1) +
+                                         " not found`")
+
+            result = await request.json()
+
+            url = result.get("html_url", None)
+            name = result.get("name", None)
+            company = result.get("company", None)
+            bio = result.get("bio", None)
+            created_at = result.get("created_at", "Not Found")
+
+            REPLY = (
+                f"GitHub Info for `{event.pattern_match.group(1)}`"
+                f"\nUsername: `{name}`\nBio: `{bio}`\nURL: {url}"
+                f"\nCompany: `{company}`\nCreated at: `{created_at}`"
+            )
+
+            if not result.get("repos_url", None):
+                return await event.edit(REPLY)
+            async with session.get(result.get("repos_url", None)) as request:
+                result = request.json
+                if request.status == 404:
+                    return await event.edit(REPLY)
+
+                result = await request.json()
+
+                REPLY += "\nRepos:\n"
+
+                for nr in range(len(result)):
+                    REPLY += f"[{result[nr].get('name', None)}]({result[nr].get('html_url', None)})\n"
+
+                await event.edit(REPLY)
+
+
+CMD_HELP.update({
+    "github":
+    ">`.git <username>`"
+    "\nUsage: Like .whois but for GitHub usernames."
+})

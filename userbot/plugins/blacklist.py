@@ -1,109 +1,106 @@
-# This Source Code Form is subject to the terms of the Mozilla Public
-# License, v. 2.0. If a copy of the MPL was not distributed with this
-# file, You can obtain one at http://mozilla.org/MPL/2.0/.
-"""Filters
-Available Commands:
-.addblacklist
-.listblacklist
-.rmblacklist"""
+# Copyright (C) 2021 KenHV ( Weeb Project )
+# for Lynx-Userbot
 
-import re
-from telethon import events
-import userbot.plugins.sql_helper.blacklist_sql as sql
+from sqlalchemy.exc import IntegrityError
 
 from userbot import CMD_HELP
-from userbot.utils import admin_cmd, edit_or_reply, sudo_cmd
+from userbot.events import register
 
 
-@bot.on(events.NewMessage(incoming=True))
-async def on_new_message(event):
-    # TODO: exempt admins from locks
-    name = event.raw_text
-    snips = sql.get_chat_blacklist(event.chat_id)
-    for snip in snips:
-        pattern = r"( |^|[^\w])" + re.escape(snip) + r"( |$|[^\w])"
-        if re.search(pattern, name, flags=re.IGNORECASE):
-            try:
-                await event.delete()
-            except Exception:
-                await event.reply("I do not have DELETE permission in this chat")
-                sql.rm_from_blacklist(event.chat_id, snip.lower())
-            break
+@register(outgoing=True, pattern=r"^\.blacklist (.*)")
+async def blacklist(event):
+    """Adds given chat to blacklist."""
+    try:
+        from userbot.modules.sql_helper.blacklist_sql import add_blacklist
+    except IntegrityError:
+        return await event.edit("**Running on Non-SQL mode!**")
+
+    try:
+        chat_id = int(event.pattern_match.group(1))
+    except ValueError:
+        chat_id = event.pattern_match.group(1)
+
+    try:
+        chat_id = await event.client.get_peer_id(chat_id)
+    except Exception:
+        return await event.edit("**Error: Invalid username/ID provided.**")
+
+    try:
+        add_blacklist(str(chat_id))
+    except IntegrityError:
+        return await event.edit("**Given chat is already blacklisted.**")
+
+    await event.edit("**Blacklisted given chat!**")
 
 
-@bot.on(admin_cmd(pattern="addblacklist ((.|\n)*)"))
-@bot.on(sudo_cmd(pattern="addblacklist ((.|\n)*)", allow_sudo=True))
-async def on_add_black_list(event):
-    text = event.pattern_match.group(1)
-    to_blacklist = list(
-        {trigger.strip() for trigger in text.split("\n") if trigger.strip()}
-    )
+@register(outgoing=True, pattern=r"^\.unblacklist (.*)")
+async def unblacklist(event):
+    """Unblacklists given chat."""
+    try:
+        from userbot.modules.sql_helper.blacklist_sql import (
+            del_blacklist,
+            get_blacklist,
+        )
+    except IntegrityError:
+        return await event.edit("**Running on Non-SQL mode!**")
 
-    for trigger in to_blacklist:
-        sql.add_to_blacklist(event.chat_id, trigger.lower())
-    await edit_or_reply(
-        event,
-        "Added {} triggers to the blacklist in the current chat".format(
-            len(to_blacklist)
-        ),
-    )
+    chat_id = event.pattern_match.group(1)
+    try:
+        chat_id = str(await event.client.get_peer_id(chat_id))
+    except Exception:
+        pass  # this way, deleted chats can be unblacklisted
 
+    if chat_id == "all":
+        from userbot.modules.sql_helper.blacklist_sql import del_blacklist_all
 
-@bot.on(admin_cmd(pattern="rmblacklist ((.|\n)*)"))
-@bot.on(sudo_cmd(pattern="rmblacklist ((.|\n)*)", allow_sudo=True))
-async def on_delete_blacklist(event):
-    text = event.pattern_match.group(1)
-    to_unblacklist = list(
-        {trigger.strip() for trigger in text.split("\n") if trigger.strip()}
-    )
+        del_blacklist_all()
+        return await event.edit("**Cleared all blacklists!**")
 
-    successful = sum(
-        1
-        for trigger in to_unblacklist
-        if sql.rm_from_blacklist(event.chat_id, trigger.lower())
-    )
+    id_exists = False
+    for i in get_blacklist():
+        if chat_id == i.chat_id:
+            id_exists = True
 
-    await edit_or_reply(
-        event, f"Removed {successful} / {len(to_unblacklist)} from the blacklist"
-    )
+    if not id_exists:
+        return await event.edit("**This chat isn't blacklisted.**")
+
+    del_blacklist(chat_id)
+    await event.edit("**Un-blacklisted given chat!**")
 
 
-@bot.on(admin_cmd(pattern="listblacklist$"))
-@bot.on(sudo_cmd(pattern="listblacklist$", allow_sudo=True))
-async def on_view_blacklist(event):
-    all_blacklisted = sql.get_chat_blacklist(event.chat_id)
-    OUT_STR = "Blacklists in the Current Chat:\n"
-    if len(all_blacklisted) > 0:
-        for trigger in all_blacklisted:
-            OUT_STR += f"👉 {trigger} \n"
-    else:
-        OUT_STR = "No Blacklists found. Start saving using `.addblacklist`"
-    if len(OUT_STR) > Config.MAX_MESSAGE_SIZE_LIMIT:
-        with io.BytesIO(str.encode(OUT_STR)) as out_file:
-            out_file.name = "blacklist.text"
-            await event.client.send_file(
-                event.chat_id,
-                out_file,
-                force_document=True,
-                allow_cache=False,
-                caption="Blacklists in the Current Chat",
-                reply_to=event,
-            )
-            await event.delete()
-    else:
-        await edit_or_reply(event, OUT_STR)
+@register(outgoing=True, pattern=r"^\.blacklists$")
+async def list_blacklist(event):
+    """Lists all blacklisted chats."""
+    try:
+        from userbot.modules.sql_helper.blacklist_sql import get_blacklist
+    except IntegrityError:
+        return await event.edit("**Running on Non-SQL mode!**")
+
+    chat_list = get_blacklist()
+    if not chat_list:
+        return await event.edit("**You haven't blacklisted any chats yet!**")
+
+    msg = "**Blacklisted chats:**\n\n"
+
+    for i in chat_list:
+        try:
+            chat = await event.client.get_entity(int(i.chat_id))
+            chat = f"{chat.title} | `{i.chat_id}`"
+        except (TypeError, ValueError):
+            chat = f"__Couldn't fetch chat info__ | `{i.chat_id}`"
+
+        msg += f"• {chat}\n"
+
+    await event.edit(msg)
 
 
-CMD_HELP.update(
-    {
-        "blacklist": "**blacklist**\
-    \n**Syntax : **`.addblacklist` <word/words>\
-    \n**Usage : **The given word or words will be added to blacklist in that specific chat if any user sends then the message gets deleted.\
-    \n\n**Syntax : **`.rmblacklist` <word/words>\
-    \n**Usage : **The given word or words will be removed from blacklist in that specific chat\
-    \n\n**Syntax : **`.listblacklist`\
-    \n**Usage : **Shows you the list of blacklist words in that specific chat\
-    \n\n**Note : **if you are adding more than one word at time via this, then remember that new word must be given in a new line that is not [hi hello]. It must be as\
-    \n[hi \n hello]"
-    }
-)
+CMD_HELP.update({"blacklist": "✘ Pʟᴜɢɪɴ : Blacklist"
+                 "\nFunctions : **Disables ALL USERBOT Functions on Blacklisted Groups.**"
+                 "\n\n⚡𝘾𝙈𝘿⚡: `.blacklist <Username/ID>`"
+                 "\n↳ : Blacklists Provided Chat."
+                 "\n\n⚡𝘾𝙈𝘿⚡: `.unblacklist <Username/ID>`"
+                 "\n↳ : Removes Provided Chat From Blacklist."
+                 "\n\n⚡𝘾𝙈𝘿⚡: `.unblacklist all`"
+                 "\n↳ : Removes All Chats From Blacklist."
+                 "\n\n⚡𝘾𝙈𝘿⚡: `.blacklists`"
+                 "\n↳ : Lists All Blacklisted Chats."})

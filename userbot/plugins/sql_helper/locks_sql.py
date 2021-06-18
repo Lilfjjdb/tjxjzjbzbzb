@@ -1,5 +1,6 @@
 from sqlalchemy import Boolean, Column, String
-from userbot.plugins.sql_helper import SESSION, BASE
+
+from userbot.modules.sql_helper import BASE, SESSION
 
 
 class Locks(BASE):
@@ -11,7 +12,6 @@ class Locks(BASE):
     email = Column(Boolean, default=False)
     forward = Column(Boolean, default=False)
     url = Column(Boolean, default=False)
-
 
     def __init__(self, chat_id):
         self.chat_id = str(chat_id)  # ensure string
@@ -59,15 +59,15 @@ def is_locked(chat_id, lock_type):
     SESSION.close()
     if not curr_perm:
         return False
-    elif lock_type == "bots":
+    if lock_type == "bots":
         return curr_perm.bots
-    elif lock_type == "commands":
+    if lock_type == "commands":
         return curr_perm.commands
-    elif lock_type == "email":
+    if lock_type == "email":
         return curr_perm.email
-    elif lock_type == "forward":
+    if lock_type == "forward":
         return curr_perm.forward
-    elif lock_type == "url":
+    if lock_type == "url":
         return curr_perm.url
 
 

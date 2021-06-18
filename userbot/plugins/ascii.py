@@ -1,106 +1,152 @@
-#Ascii module by @legendx22 for @LEGENDBOT_official
-#A over powerful bot
-#I know u will kang... 
-#GTFO!! MOTHERFUCKER!!!!!!!!!!!
+# based on https://gist.github.com/wshanshan/c825efca4501a491447056849dd207d6
+# Ported for ProjectAlf by Alfiananda P.A
+
+import os
+import random
+
+import numpy as np
+from colour import Color
+from hachoir.metadata import extractMetadata
+from hachoir.parser import createParser
+from PIL import Image, ImageDraw, ImageFont
+from telethon.tl.types import DocumentAttributeFilename
+
+from userbot import CMD_HELP, bot
+from userbot.events import register
+
+bground = "black"
 
 
-from telethon import events
-from telethon.errors.rpcerrorlist import YouBlockedUserError
-from userbot.utils import admin_cmd, edit_or_reply, sudo_cmd
-from userbot import CMD_HELP, ALIVE_NAME
-
-DEFAULTUSER = str(ALIVE_NAME) if ALIVE_NAME else "Hell User"
-
-USERID = bot.uid
-
-mention = f"[{DEFAULTUSER}](tg://user?id={USERID})"
-
-
-@bot.on(admin_cmd("ascii ?(.*)"))
-@bot.on(sudo_cmd(pattern="ascii ?(.*)", allow_sudo=True))
-async def _(event):
-    if event.fwd_from:
-        return
+@register(outgoing=True, pattern=r"^\.(ascii|asciis)$")
+async def ascii(event):
     if not event.reply_to_msg_id:
-        await edit_or_reply(event, "Reply to any user message.😒🤐")
+        await event.edit("`Mohon Balas Ke Media..`")
         return
     reply_message = await event.get_reply_message()
     if not reply_message.media:
-        await edit_or_reply(event, "Reply to media message😒🤐")
+        await event.edit("`Balas Ke Gambar/Sticker/Video`")
         return
-    chat = "@asciiart_bot"
-    reply_message.sender
-    if reply_message.sender.bot:
-        await edit_or_reply(event, "Reply to actual users message.😒🤐")
-        return
-    legendx22 = await edit_or_reply(event, "Wait making ASCII...🤓🔥🔥")
-    async with event.client.conversation(chat) as conv:
-        try:
-            response = conv.wait_event(
-                events.NewMessage(incoming=True, from_users=164766745)
-            )
-            await event.client.send_message(chat, reply_message)
-            response = await response
-        except YouBlockedUserError:
-            await legendx22.edit("`Please unblock @asciiart_bot and try again`")
-            return
-        if response.text.startswith("Forward"):
-            await legendx22.edit(
-                "`can you kindly disable your forward privacy settings for good?`"
-            )
+    await event.edit("`Sedang Mendownload Media..`")
+    if reply_message.photo:
+        IMG = await bot.download_media(
+            reply_message,
+            "ascii.png",
+        )
+    elif (
+        DocumentAttributeFilename(file_name="AnimatedSticker.tgs")
+        in reply_message.media.document.attributes
+    ):
+        await bot.download_media(
+            reply_message,
+            "ASCII.tgs",
+        )
+        os.system('lottie_convert.py ASCII.tgs ascii.png', shell=False)
+        IMG = "ascii.png"
+    elif reply_message.video:
+        video = await bot.download_media(
+            reply_message,
+            "ascii.mp4",
+        )
+        extractMetadata(createParser(video))
+        os.system(
+            'ffmpeg -i ascii.mp4 -vframes 1 -an -s 480x360 -ss 1 ascii.png',
+            shell=False)
+        IMG = "ascii.png"
+    else:
+        IMG = await bot.download_media(
+            reply_message,
+            "ascii.png",
+        )
+    try:
+        await event.edit("`Sedang Dalam Proses..`")
+        list = await random_color()
+        color1 = list[0]
+        color2 = list[1]
+        bgcolor = bground
+        await asciiart(IMG, color1, color2, bgcolor)
+        cmd = event.pattern_match.group(1)
+        if cmd == "asciis":
+            os.system('cp ascii.png ascii.webp', shell=False)
+            ascii_file = "ascii.webp"
         else:
-            await legendx22.delete()
-            await event.client.send_file(
-                event.chat_id,
-                response.message.media,
-                caption=f"**Image Type :** ASCII Art\n**Uploaded By :** {mention}",
-            )
-            await event.client.send_read_acknowledge(conv.chat_id)
-
-
-@bot.on(admin_cmd(pattern="line ?(.*)"))
-@bot.on(sudo_cmd(pattern="line ?(.*)", allow_sudo=True))
-async def _(event):
-    if event.fwd_from:
-        return
-    if not event.reply_to_msg_id:
-        await edit_or_reply(event, "Reply to any user message.😒🤐")
-        return
-    reply_message = await event.get_reply_message()
-    if not reply_message.media:
-        await edit_or_reply(event, "Reply to media message😒🤐")
-        return
-    chat = "@Lines50Bot"
-    reply_message.sender
-    if reply_message.sender.bot:
-        await edit_or_reply(event, "Reply to actual users message.😒🤐")
-        return
-    legendx22 = await edit_or_reply(event, "`Processing`")
-    async with event.client.conversation(chat) as conv:
-        try:
-            await conv.send_message("/start")
-            await conv.get_response()
-            await conv.send_message(reply_message)
-            await conv.get_response()
-            pic = await conv.get_response()
-            await event.client.send_read_acknowledge(conv.chat_id)
-        except YouBlockedUserError:
-            await legendx22.edit("Please unblock @Lines50Bot and try again")
-            return
-        await legendx22.delete()
+            ascii_file = "ascii.png"
         await event.client.send_file(
             event.chat_id,
-            pic,
-            caption=f"**Image Type :** LINE Art \n**Uploaded By :** {mention}",
+            ascii_file,
+            force_document=False,
+            reply_to=event.reply_to_msg_id,
         )
+        await event.delete()
+        os.system('rm *.png *.webp *.mp4 *.tgs', shell=False)
+    except BaseException as e:
+        os.system('rm *.png *.webp *.mp4 *.png', shell=False)
+        return await event.edit(str(e))
+
+
+async def asciiart(IMG, color1, color2, bgcolor):
+    chars = np.asarray(list(" .,:irs?@9B&#"))
+    font = ImageFont.load_default()
+    letter_width = font.getsize("x")[0]
+    letter_height = font.getsize("x")[1]
+    WCF = letter_height / letter_width
+    img = Image.open(IMG)
+    widthByLetter = round(img.size[0] * 0.15 * WCF)
+    heightByLetter = round(img.size[1] * 0.15)
+    S = (widthByLetter, heightByLetter)
+    img = img.resize(S)
+    img = np.sum(np.asarray(img), axis=2)
+    img -= img.min()
+    img = (1.0 - img / img.max()) ** 2.2 * (chars.size - 1)
+    lines = ("\n".join(("".join(r)
+                        for r in chars[img.astype(int)]))).split("\n")
+    nbins = len(lines)
+    colorRange = list(Color(color1).range_to(Color(color2), nbins))
+    newImg_width = letter_width * widthByLetter
+    newImg_height = letter_height * heightByLetter
+    newImg = Image.new("RGBA", (newImg_width, newImg_height), bgcolor)
+    draw = ImageDraw.Draw(newImg)
+    leftpadding = 0
+    y = 0
+    lineIdx = 0
+    for line in lines:
+        color = colorRange[lineIdx]
+        lineIdx += 1
+        draw.text((leftpadding, y), line, color.hex, font=font)
+        y += letter_height
+    IMG = newImg.save("ascii.png")
+    return IMG
+
+
+# this is from userge
+async def random_color():
+    color = [
+        "#" + "".join([random.choice("0123456789ABCDEF") for k in range(6)])
+        for i in range(2)
+    ]
+    return color
+
+
+@register(outgoing=True, pattern=r"^\.asciibg(?: |$)(.*)")
+async def _(event):
+    BG = event.pattern_match.group(1)
+    if BG.isnumeric():
+        return await event.edit("`Mohon Masukkan Warna Bukan Angka Lord`")
+    elif BG:
+        global bground
+        bground = BG
+    else:
+        return await event.edit("`Mohon Masukkan Background Dari Ascii`")
+    await event.edit(f"`Berhasil Setel Background Dari Ascii Ke` **{BG}**")
 
 
 CMD_HELP.update(
     {
-        "ascii": "__**PLUGIN NAME :** ascii__\
-      \n\n** CMD ** `.ascii` reply to any image file:\
-      \n**USAGE : **Makes an image ascii style, try out your own.\
-      \n\n** CMD ** `.line` reply to any image file:\
-      \n**USAGE : **Makes an image line style.\ "
+        "ascii": "✘ Pʟᴜɢɪɴ : `ASCII`\
+        \n\n⚡𝘾𝙈𝘿⚡: `.ascii` <Reply Media>\
+        \n↳ : Buat Ascii Art Dari Media.\
+        \n\n⚡𝘾𝙈𝘿⚡: `.asciis` <Reply Media\
+        \n↳ : Sama Tapi Unggah Hasilnya Sebagai Sticker.\
+        \n\n⚡𝘾𝙈𝘿⚡: `.asciibg <Color>`\
+        \n↳ : Untuk Mengubah Warna Background.\n Contoh : `.asciibg black`"
     }
 )

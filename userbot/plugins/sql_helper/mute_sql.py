@@ -1,9 +1,9 @@
 try:
-    from userbot.plugins.sql_helper import SESSION, BASE
+    from userbot.modules.sql_helper import SESSION, BASE
 except ImportError:
     raise Exception("Hello!")
 
-from sqlalchemy import Column, String, UnicodeText
+from sqlalchemy import Column, String
 
 
 class Mute(BASE):
@@ -38,8 +38,3 @@ def unmute(sender, chat_id):
     if rem:
         SESSION.delete(rem)
         SESSION.commit()
-
-def get_all_muted():
-    rem = SESSION.query(Mute).all()
-    SESSION.close()
-    return rem
