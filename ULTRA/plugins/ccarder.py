@@ -10,7 +10,7 @@ from telethon import events
 from telethon.errors.rpcerrorlist import YouBlockedUserError
 
 
-from userbot.events import register
+
 
 
 # Ported for Lynx-Userbot
