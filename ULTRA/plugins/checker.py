@@ -6,7 +6,7 @@ from telethon.errors.rpcerrorlist import YouBlockedUserError
 
 from userbot.utils import admin_cmd
 
-naam = str(ALIVE_NAME)
+
 
 bot = "@Carol5_bot"
 
