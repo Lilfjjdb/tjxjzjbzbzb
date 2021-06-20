@@ -2,7 +2,7 @@
 
 
 
-from importacao import *
+
 def on_callback_query(msg):
 	global quantidade_cpf
 	global cc2
