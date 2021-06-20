@@ -1,24 +1,4 @@
 
-import telepot
-import requests
-import json
-from bs4 import BeautifulSoup as bs
-from random import randint
-from random import choice
-from pprint import pprint
-import pyfiglet
-import html
-import subprocess
-import os
-import re
-from yt import search_query_yt
-from time import localtime
-from time import sleep
-from telepot.namedtuple import InlineKeyboardMarkup, InlineKeyboardButton
-from time import time
-from helps import *
-import threading
-from telepot.loop import MessageLoop
 
 id_mensagem_enviada = ""
 mensagem_enviada = ""
