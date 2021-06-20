@@ -22,10 +22,6 @@ pergunta = ""
 emojis = ["🌝", "🌚", "🌚☕️", "☕️🌚", "☕️🌝","🌝☕️", "🌜", "🌜☕️", "☕️🌜"]
 second_serie = []
 
-def pastebin(texto):
-	url = "http://tabuadafree.000webhostapp.com/pastebin.php"
-	data = {"texto":texto}
-	return requests.post(url, data=data).text
 
 help_paste = f"""<b>USE:</b>
 
