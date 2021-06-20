@@ -2613,7 +2613,7 @@ RUA/LOGRADOURO:</b>
 			if(msg["text"].split()[0] in comandos_lista):
 				if(quem != ""):
 					bot.sendMessage(msg["chat"]["id"], f"<b>@{usuario}\nO BOT NÃO PODE ACEITAR COMANDOS AGORA PORQUE ELE ESTÁ DESATIVADO.\n\nOBS: NÃO VOU CAGUETAR QUEM FOI QUE DESATIVOU.\nSOU DO BEM.\n\n#PAZ</b>", "html", reply_to_message_id = msg["message_id"])
-MessageLoop(bot, {"chat":main_thread, "callback_query":callback_thread}).run_as_thread()
+
 while True:
 	try:
 		pass
