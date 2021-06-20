@@ -3,7 +3,6 @@
 id_mensagem_enviada = ""
 mensagem_enviada = ""
 quantidade_cpf = 0
-bot = telepot.Bot("621597516:AAGrwHp3d66TIqjJvwBOj9ciCfS4tCI7tzg")
 comandos_lista = ["/sky", "/paste", "/ml", "/link", "/nickgen", "/rt", "/ping", "/emails", "/report", "/cbgen@ChkViadexBot", "/youtube", "/hash", "/nome@makerscriiptsbot", "/nome", "/ssh", "/cpf@ChkViadexBot", "/admins", "/anime", "/serie", "/regra", "/regras", "/regras@makerscriiptsbot" "/clima","/fixar","/calc","/noticia", "/cep","/traduz","/criptocoins","/mp4","/chkcpf","/tablet","/cell","/mp3","/pc","/traduz","/figlet","/comandos@MakerScriiptsBOT","/thumb","/fakedataus","/fakedatabr","/fakedataca","/comandos","/status","/start","/bin","/cpf","/nome","/chkg","/chkf","/cpfgen","/cbgen","/bingen","/chkcb","/meuip","/meumac","/ip","/speednet","/noticias","/wiki","/adfly","/cotacao","/btcreal","/realbtc","/reladolar","/dolareal","/dolarbtc","/btcdolar","/chkplaca","/fakedatabr","/fakedataus","/fakedataca"]
 admins = []
 super = ["MrHarold"]
