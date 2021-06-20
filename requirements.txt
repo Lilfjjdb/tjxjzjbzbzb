@@ -1,3 +1,7 @@
+telepot
+requests
+pyfiglet
+bs4
 Pillow>=5.3.0
 PyGithub
 pygifsicle
