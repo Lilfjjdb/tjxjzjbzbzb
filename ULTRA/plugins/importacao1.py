@@ -31,7 +31,6 @@ help_paste = f"""<b>USE:</b>
 
 <pre>/paste O @MrHarold é aluno do @MakerScriipts</pre>
 
-<b>Saida: {pastebin("O @MrHarold é aluno do @MakerScriipts")}</b>"""
 
 comandos_pagina1 = f"""<b>🔥LISTA DE COMANDOS🔥</b>
 
