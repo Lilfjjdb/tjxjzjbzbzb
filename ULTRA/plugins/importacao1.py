@@ -1,4 +1,4 @@
-from gerarnick import gerarNick
+
 import telepot
 import requests
 import json
