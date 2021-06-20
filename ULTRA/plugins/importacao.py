@@ -32,7 +32,7 @@ help_paste = f"""<b>USE:</b>
 <pre>/paste O @MrHarold é aluno do @MakerScriipts</pre>
 
 
-comandos_pagina1 = f"""<b>🔥LISTA DE COMANDOS🔥</b>
+#comandos_pagina1 = f"""<b>🔥LISTA DE COMANDOS🔥</b>
 
 <pre>/status</pre>
 <b>✅ [ON] EXIBE OS COMANDOS QUE ESTÃO ONLINE.</b>
@@ -66,7 +66,7 @@ comandos_pagina1 = f"""<b>🔥LISTA DE COMANDOS🔥</b>
 
 <b>-&gt; Página [1/5]</b>"""
 
-comandos_pagina2 = """<b>🔥LISTA DE COMANDOS🔥</b>
+#comandos_pagina2 = """<b>🔥LISTA DE COMANDOS🔥</b>
 
 <pre>/chkcpf</pre>
 <b>✅ [ON] CHECKER DE CPF.</b>
@@ -100,7 +100,7 @@ comandos_pagina2 = """<b>🔥LISTA DE COMANDOS🔥</b>
 
 <b>-&gt; Página [2/5]</b>"""
 
-comandos_pagina3 = """<b>🔥LISTA DE COMANDOS🔥</b>
+#comandos_pagina3 = """<b>🔥LISTA DE COMANDOS🔥</b>
 
 <pre>/cotacao</pre>
 <b>✅ [ON] EXIBIR COTAÇÕES.</b>
@@ -134,7 +134,7 @@ comandos_pagina3 = """<b>🔥LISTA DE COMANDOS🔥</b>
 
 <b>-&gt; Página [3/5]</b>"""
 
-comandos_pagina4 = """<b>🔥LISTA DE COMANDOS🔥</b>
+#comandos_pagina4 = """<b>🔥LISTA DE COMANDOS🔥</b>
 
 <pre>/thumb</pre>
 <b>✅ [ON] CAPTURAR CAPA DE VIDEO YT.</b>
@@ -168,7 +168,7 @@ comandos_pagina4 = """<b>🔥LISTA DE COMANDOS🔥</b>
 
 <b>-&gt; Página [4/5]</b>"""
 
-comandos_pagina5 = """<b>🔥LISTA DE COMANDOS🔥</b>
+#comandos_pagina5 = """<b>🔥LISTA DE COMANDOS🔥</b>
 
 <pre>/rt</pre>
 <b>✅ [ON] CONCORDA/RETWEETA MENSAGEM QUE ALGUM USUÁRIO ENVIOU.</b>
@@ -202,7 +202,7 @@ comandos_pagina5 = """<b>🔥LISTA DE COMANDOS🔥</b>
 
 <b>-&gt; Página [5/5]</b>"""
 
-comandos_online = f"""<b>COMANDOS ONLINES:</b>
+#comandos_online = f"""<b>COMANDOS ONLINES:</b>
 	
 ✅  <pre>/ip</pre>
 ✅  <pre>/chkg</pre>
