@@ -21,16 +21,6 @@ mensagens_count = 0
 pergunta = ""
 emojis = ["🌝", "🌚", "🌚☕️", "☕️🌚", "☕️🌝","🌝☕️", "🌜", "🌜☕️", "☕️🌜"]
 second_serie = []
-verify_members = subprocess.getstatusoutput("cat backup_members.txt")[1]
-if(verify_members == ""):
-	membros = {}
-else:
-	membros = eval(verify_members)
-verify_sessao = subprocess.getstatusoutput("cat sessoes.txt")[1]
-if(verify_sessao == ""):
-	sessao = {}
-else:
-	sessao = eval(verify_sessao)
 
 def pastebin(texto):
 	url = "http://tabuadafree.000webhostapp.com/pastebin.php"
